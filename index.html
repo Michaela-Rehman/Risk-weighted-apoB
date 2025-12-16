@@ -33,7 +33,7 @@ body {
 
 h2 {
   font-size: 2.3rem;
-  font-weight: 400;
+  font-weight: 400; /* not bold */
 }
 
 h4, h5 {
@@ -51,7 +51,8 @@ h4, h5 {
 }
 
 canvas {
-  max-width: 100%;
+  width: 100% !important;
+  height: auto !important;
   max-height: 300px;
 }
 
@@ -103,29 +104,29 @@ canvas {
     <div class="card-body">
       <h4>Enter Lipid Measurements</h4>
       <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
           <label class="form-label">Triglycerides</label>
           <input type="number" id="tg" class="form-control" value="0" min="0">
         </div>
-        <div class="col-md-2">
+        <div class="col-12 col-md-2">
           <label class="form-label">Unit</label>
           <select id="tg_unit" class="form-select">
             <option value="mmol/L">mmol/L</option>
             <option value="mg/dL">mg/dL</option>
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
           <label class="form-label">Lipoprotein(a)</label>
           <input type="number" id="lpa" class="form-control" value="0" min="0">
         </div>
-        <div class="col-md-2">
+        <div class="col-12 col-md-2">
           <label class="form-label">Unit</label>
           <select id="lpa_unit" class="form-select">
             <option value="nmol/L">nmol/L</option>
             <option value="mg/dL">mg/dL</option>
           </select>
         </div>
-        <div class="col-md-6">
+        <div class="col-12 col-md-6">
           <label class="form-label">Apolipoprotein B (mg/dL)</label>
           <input type="number" id="apoB" class="form-control" value="0" min="0">
         </div>
@@ -133,14 +134,14 @@ canvas {
     </div>
   </div>
 
-  <!-- Results -->
-  <div class="row mb-3">
-    <div class="col-md-6 mb-3 mb-md-0">
+  <!-- Results & Percentiles -->
+  <div class="row d-flex flex-column flex-md-row mb-3">
+    <div class="col-12 col-md-6 mb-3 mb-md-0">
       <div class="card p-3 h-100">
         <div class="card-body" id="result"></div>
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-12 col-md-6">
       <div class="card p-3 h-100">
         <div class="card-body">
           <h4>How do these results compare with other people?</h4>
@@ -151,17 +152,17 @@ canvas {
   </div>
 
   <!-- Charts -->
-  <div class="row mb-3">
-    <div class="col-md-6 mb-3 mb-md-0">
-      <div class="card p-3">
+  <div class="row d-flex flex-column flex-md-row mb-3">
+    <div class="col-12 col-md-6 mb-3 mb-md-0">
+      <div class="card p-3 h-100">
         <div class="card-body">
           <div class="chart-title">Particle proportions (%)</div>
           <canvas id="particlePieChart"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card p-3">
+    <div class="col-12 col-md-6">
+      <div class="card p-3 h-100">
         <div class="card-body">
           <div class="chart-title">Risk contribution proportions (%)</div>
           <canvas id="riskPieChart"></canvas>
