@@ -31,6 +31,11 @@ body {
   font-size: 1.3rem;
 }
 
+h2 {
+  font-size: 2.3rem;
+  font-weight: 400;
+}
+
 h4, h5 {
   font-weight: 700;
 }
@@ -38,6 +43,11 @@ h4, h5 {
 #result p,
 #percentileOutput p {
   margin-bottom: 0.4rem;
+}
+
+#percentileOutput p {
+  font-size: 1.15rem;
+  font-weight: 500;
 }
 
 canvas {
@@ -57,17 +67,25 @@ canvas {
 }
 
 .logo-bar img.right-logo {
-  max-height: 100px;
+  max-height: 130px;
 }
 
 .chart-title {
   text-align: center;
   font-weight: 700;
   margin-bottom: 10px;
-font-size: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.disclaimer-box {
+  background-color: #eeeeee;
+  color: #555;
+  font-size: 0.9rem;
+  text-align: center;
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -80,7 +98,7 @@ font-size: 1.5rem;
 
   <h2 class="text-center mb-4">Risk-weighted ApoB Calculator</h2>
 
-  <!-- Input Box (Full-width) -->
+  <!-- Input Box -->
   <div class="card p-3 mb-3">
     <div class="card-body">
       <h4>Enter Lipid Measurements</h4>
@@ -115,9 +133,9 @@ font-size: 1.5rem;
     </div>
   </div>
 
-  <!-- Results and Percentiles (Side by side, same height) -->
+  <!-- Results -->
   <div class="row mb-3">
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3 mb-md-0">
       <div class="card p-3 h-100">
         <div class="card-body" id="result"></div>
       </div>
@@ -132,12 +150,12 @@ font-size: 1.5rem;
     </div>
   </div>
 
-  <!-- Pie Charts (Side by side) -->
-  <div class="row">
-    <div class="col-md-6">
+  <!-- Charts -->
+  <div class="row mb-3">
+    <div class="col-md-6 mb-3 mb-md-0">
       <div class="card p-3">
         <div class="card-body">
-          <div class="chart-title">Particle proportions</div>
+          <div class="chart-title">Particle proportions (%)</div>
           <canvas id="particlePieChart"></canvas>
         </div>
       </div>
@@ -145,8 +163,23 @@ font-size: 1.5rem;
     <div class="col-md-6">
       <div class="card p-3">
         <div class="card-body">
-          <div class="chart-title">Risk contribution proportions</div>
+          <div class="chart-title">Risk contribution proportions (%)</div>
           <canvas id="riskPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card p-3 disclaimer-box">
+        <div class="card-body">
+          <strong>Disclaimer & Additional Information</strong>
+          <p class="mb-0">
+            This tool is for informational purposes only and does not constitute medical advice.
+            Links and additional details will be added here.
+          </p>
         </div>
       </div>
     </div>
@@ -157,101 +190,101 @@ font-size: 1.5rem;
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-if (!Math.erf) {
-  Math.erf = function(x) {
-    const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
-    const sign = x<0?-1:1; x=Math.abs(x);
-    const t=1/(1+p*x);
-    return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));
+  if (!Math.erf) {
+    Math.erf = function(x) {
+      const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+      const sign = x<0?-1:1; x=Math.abs(x);
+      const t=1/(1+p*x);
+      return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));
+    }
   }
-}
 
-const normCDF = z => (1 + Math.erf(z/Math.sqrt(2))) / 2;
-const apoBPercentile = x => x<=0?0:Math.round(normCDF((Math.log(x)-4.64175)/0.219697)*100);
-const RWapobPercentile = x => x<=0?0:Math.round(normCDF((Math.log(x)-4.67325)/0.2436121)*100);
+  const normCDF = z => (1 + Math.erf(z/Math.sqrt(2))) / 2;
+  const apoBPercentile = x => x<=0?0:Math.round(normCDF((Math.log(x)-4.64175)/0.219697)*100);
+  const RWapobPercentile = x => x<=0?0:Math.round(normCDF((Math.log(x)-4.67325)/0.2436121)*100);
 
-let particlePieChart, riskPieChart;
+  let particlePieChart, riskPieChart;
 
-const tgInput = document.getElementById('tg');
-const tgUnit = document.getElementById('tg_unit');
-const lpaInput = document.getElementById('lpa');
-const lpaUnit = document.getElementById('lpa_unit');
-const apoBInput = document.getElementById('apoB');
+  const tgInput = document.getElementById('tg');
+  const tgUnit = document.getElementById('tg_unit');
+  const lpaInput = document.getElementById('lpa');
+  const lpaUnit = document.getElementById('lpa_unit');
+  const apoBInput = document.getElementById('apoB');
 
-const result = document.getElementById('result');
-const percentileOutput = document.getElementById('percentileOutput');
-const particlePieChartCtx = document.getElementById('particlePieChart').getContext('2d');
-const riskPieChartCtx = document.getElementById('riskPieChart').getContext('2d');
+  const result = document.getElementById('result');
+  const percentileOutput = document.getElementById('percentileOutput');
+  const particlePieChartCtx = document.getElementById('particlePieChart').getContext('2d');
+  const riskPieChartCtx = document.getElementById('riskPieChart').getContext('2d');
 
-function updateResults() {
-  const tg = +tgInput.value || 0;
-  const lpa = +lpaInput.value || 0;
-  const apoB = +apoBInput.value || 0;
+  function updateResults() {
+    const tg = +tgInput.value || 0;
+    const lpa = +lpaInput.value || 0;
+    const apoB = +apoBInput.value || 0;
 
-  const tg_mmol = tgUnit.value==="mg/dL"?tg/88.57:tg;
-  const lpa_nm = lpaUnit.value==="mg/dL"?lpa*2.2:lpa;
+    const tg_mmol = tgUnit.value==="mg/dL"?tg/88.57:tg;
+    const lpa_nm = lpaUnit.value==="mg/dL"?lpa*2.2:lpa;
 
-  const rwApoB = 11.65*tg_mmol + 0.215*lpa_nm + 0.736*apoB;
-  const ldl_eq_mmol = 0.149 + 0.0335*rwApoB;
-  const ldl_eq_mgdl = ldl_eq_mmol*38.67;
+    const rwApoB = 11.65*tg_mmol + 0.215*lpa_nm + 0.736*apoB;
+    const ldl_eq_mmol = 0.149 + 0.0335*rwApoB;
+    const ldl_eq_mgdl = ldl_eq_mmol*38.67;
 
-  const color = v => v<80?"green":v<=120?"orange":"red";
+    const color = v => v<80?"green":v<=120?"orange":"red";
 
-  result.innerHTML = `
-    <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
-    <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
-    <p style="color:${color(apoB)}">ApoB: ${apoB} mg/dL</p>
-    <p class="value-text" style="color:${color(rwApoB)}">RW-ApoB: ${Math.round(rwApoB)} mg/dL</p>
-    <p>Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</p>
-  `;
+    result.innerHTML = `
+      <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
+      <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
+      <p style="color:${color(apoB)}">ApoB: ${apoB} mg/dL</p>
+      <p class="value-text" style="color:${color(rwApoB)}">RW-ApoB: ${Math.round(rwApoB)} mg/dL</p>
+      <p>Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</p>
+    `;
 
-  const apoPct = apoBPercentile(apoB);
-  const rwPct = RWapobPercentile(rwApoB);
-  const pctColor = p=>p<30?"green":p<=70?"#FF8C00":"red";
+    const apoPct = apoBPercentile(apoB);
+    const rwPct = RWapobPercentile(rwApoB);
+    const pctColor = p=>p<30?"green":p<=70?"#FF8C00":"red";
 
-  percentileOutput.innerHTML = `
-    <p style="color:${pctColor(apoPct)}">${apoPct}% of people have lower ApoB</p>
-    <p style="color:${pctColor(rwPct)}">${rwPct}% of people have lower RW-ApoB</p>
-  `;
+    percentileOutput.innerHTML = `
+      <p style="color:${pctColor(apoPct)}">${apoPct}% of people have lower ApoB</p>
+      <p style="color:${pctColor(rwPct)}">${rwPct}% of people have lower RW-ApoB</p>
+    `;
 
-  const denom = 18.8*apoB||1;
-  const particleData = [
-    Math.round(85*tg_mmol/denom*100),
-    Math.round(lpa_nm/denom*100),
-    Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/denom*100)
-  ];
+    const denom = 18.8*apoB||1;
+    const particleData = [
+      Math.round(85*tg_mmol/denom*100),
+      Math.round(lpa_nm/denom*100),
+      Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/denom*100)
+    ];
 
-  const riskDenom = 18.8*apoB + 5.5*lpa_nm + 297.5*tg_mmol||1;
-  const riskData = [
-    Math.round((4.5*85*tg_mmol)/riskDenom*100),
-    Math.round((6.5*lpa_nm)/riskDenom*100),
-    Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/riskDenom*100)
-  ];
+    const riskDenom = 18.8*apoB + 5.5*lpa_nm + 297.5*tg_mmol||1;
+    const riskData = [
+      Math.round((4.5*85*tg_mmol)/riskDenom*100),
+      Math.round((6.5*lpa_nm)/riskDenom*100),
+      Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/riskDenom*100)
+    ];
 
-  const colors = ["#FFD700","#FF69B4","#90EE90"];
+    // Swapped colors: blue <-> grey
+    const colors = ["#FFC107","#9E9E9E","#64B5F6"]
+    particlePieChart?.destroy();
+    riskPieChart?.destroy();
 
-  particlePieChart?.destroy();
-  riskPieChart?.destroy();
+    particlePieChart = new Chart(particlePieChartCtx,{
+      type:'pie',
+      data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:particleData,backgroundColor:colors}]},
+      options:{responsive:true, plugins:{legend:{position:'bottom'}}}
+    });
 
-  particlePieChart = new Chart(particlePieChartCtx,{
-    type:'pie',
-    data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:particleData,backgroundColor:colors}]},
-    options:{responsive:true, maintainAspectRatio:true, plugins:{legend:{position:'bottom'}}}
+    riskPieChart = new Chart(riskPieChartCtx,{
+      type:'pie',
+      data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:riskData,backgroundColor:colors}]},
+      options:{responsive:true, plugins:{legend:{position:'bottom'}}}
+    });
+  }
+
+  [tgInput,tgUnit,lpaInput,lpaUnit,apoBInput].forEach(el=>{
+    el.addEventListener('input',updateResults);
+    el.addEventListener('change',updateResults);
   });
 
-  riskPieChart = new Chart(riskPieChartCtx,{
-    type:'pie',
-    data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:riskData,backgroundColor:colors}]},
-    options:{responsive:true, maintainAspectRatio:true, plugins:{legend:{position:'bottom'}}}
-  });
-}
-
-[tgInput,tgUnit,lpaInput,lpaUnit,apoBInput].forEach(el=>{
-  el.addEventListener('input',updateResults);
-  el.addEventListener('change',updateResults);
-});
-
-updateResults();
+  updateResults();
 });
 </script>
 
