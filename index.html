@@ -358,14 +358,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateResults();
 
-  // Live Visitor Count
+  // --- FIXED LIVE VISITOR COUNT ---
   async function updateVisitorCount() {
     try {
-      const res = await fetch("https://michaela.goatcounter.com/api/count?format=json");
-      const data = await res.json();
-      document.getElementById("visitorCount").textContent =
-        `Visitors (unique): ${data.unique} | Pageviews: ${data.count}`;
+      if (window.location.protocol.startsWith("http")) {
+        const res = await fetch("https://michaela.goatcounter.com/api/count?format=json");
+        if (!res.ok) throw new Error("Network response not ok");
+        const data = await res.json();
+        document.getElementById("visitorCount").textContent =
+          `Visitors (unique): ${data.unique} | Pageviews: ${data.count}`;
+      } else {
+        // fallback for local file
+        document.getElementById("visitorCount").textContent =
+          "Visitors:";
+      }
     } catch(err) {
+      document.getElementById("visitorCount").textContent =
+        "Visitors:";
       console.log("Error fetching GoatCounter data:", err);
     }
   }
