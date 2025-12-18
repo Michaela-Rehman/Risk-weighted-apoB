@@ -13,6 +13,10 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://michaela.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
 <style>
 body {
   font-family: 'Roboto', sans-serif;
@@ -33,28 +37,18 @@ body {
 
 h2 {
   font-size: 2.3rem;
-  font-weight: 400; /* not bold */
+  font-weight: 400;
 }
 
 h4, h5 {
   font-weight: 700;
 }
 
-#result p,
-#percentileOutput p {
-  margin-bottom: 0.4rem;
-}
-
-#percentileOutput p {
-  font-size: 1.15rem;
-  font-weight: 500;
-}
-
 .logo-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
 .logo-bar img {
@@ -63,6 +57,13 @@ h4, h5 {
 
 .logo-bar img.right-logo {
   max-height: 130px;
+}
+
+#visitorCount {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 4px;
 }
 
 .chart-title {
@@ -79,21 +80,38 @@ h4, h5 {
   text-align: center;
 }
 
-/* Chart container to limit height */
 .chart-container {
   position: relative;
   width: 100%;
   max-height: 300px;
 }
 
-/* Mobile: stretch pie chart cards to same height when stacked */
-@media (max-width: 767px) {
-  .equal-height {
-    display: flex;
-    flex-direction: column;
-  }
-  .equal-height .card {
-    flex: 1 1 auto;
+.input-warning {
+  background-color: #fff9db !important;
+}
+
+.warning-block {
+  display: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #b08900;
+  margin-top: 5px;
+}
+
+.warning-icon {
+  font-size: 1.6rem;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+#percentileOutput p {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+@media print {
+  .no-print {
+    display: none;
   }
 }
 </style>
@@ -103,9 +121,12 @@ h4, h5 {
 
 <div class="container">
 
-  <!-- Logos -->
+  <!-- Logos + Visitor Count -->
   <div class="logo-bar">
-    <img src="logo2.png" alt="Logo 2">
+    <div>
+      <img src="logo2.png" alt="Logo 2">
+      <div id="visitorCount">Visitors: loading...</div>
+    </div>
     <img src="logo1.png" alt="Logo 1" class="right-logo">
   </div>
 
@@ -114,12 +135,22 @@ h4, h5 {
   <!-- Input Box -->
   <div class="card p-3 mb-3">
     <div class="card-body">
-      <h4>Enter Lipid Measurements</h4>
-      <div class="row g-3">
+      <div class="d-flex justify-content-between align-items-start">
+        <h4>Enter Lipid Measurements</h4>
+        <button class="btn btn-sm btn-outline-secondary no-print" onclick="resetInputs()">Reset</button>
+      </div>
+
+      <div id="rangeWarning" class="warning-block">
+        <span class="warning-icon">⚠️</span>
+        Are you sure? Check values and units.
+      </div>
+
+      <div class="row g-3 mt-1">
         <div class="col-12 col-md-4">
           <label class="form-label">Triglycerides</label>
           <input type="number" id="tg" class="form-control" value="0" min="0">
         </div>
+
         <div class="col-12 col-md-2">
           <label class="form-label">Unit</label>
           <select id="tg_unit" class="form-select">
@@ -127,10 +158,12 @@ h4, h5 {
             <option value="mg/dL">mg/dL</option>
           </select>
         </div>
+
         <div class="col-12 col-md-4">
           <label class="form-label">Lipoprotein(a)</label>
           <input type="number" id="lpa" class="form-control" value="0" min="0">
         </div>
+
         <div class="col-12 col-md-2">
           <label class="form-label">Unit</label>
           <select id="lpa_unit" class="form-select">
@@ -138,6 +171,7 @@ h4, h5 {
             <option value="mg/dL">mg/dL</option>
           </select>
         </div>
+
         <div class="col-12 col-md-6">
           <label class="form-label">Apolipoprotein B (mg/dL)</label>
           <input type="number" id="apoB" class="form-control" value="0" min="0">
@@ -187,6 +221,11 @@ h4, h5 {
     </div>
   </div>
 
+  <!-- Export -->
+  <div class="text-center mb-3 no-print">
+    <button class="btn btn-secondary" onclick="window.print()">Export to PDF</button>
+  </div>
+
   <!-- Disclaimer -->
   <div class="row mb-4">
     <div class="col-12">
@@ -195,8 +234,8 @@ h4, h5 {
           <strong>Disclaimer & Additional Information</strong>
           <p class="mb-0">
             This tool is for informational purposes only and does not constitute medical advice.
-            Links and additional details will be added here.
           </p>
+                   </p>
         </div>
       </div>
     </div>
@@ -210,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!Math.erf) {
     Math.erf = function(x) {
       const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
-      const sign = x<0?-1:1; x=Math.abs(x);
+      const sign=x<0?-1:1; x=Math.abs(x);
       const t=1/(1+p*x);
       return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));
     }
@@ -220,79 +259,95 @@ document.addEventListener('DOMContentLoaded', () => {
   const apoBPercentile = x => x<=0?0:Math.round(normCDF((Math.log(x)-4.64175)/0.219697)*100);
   const RWapobPercentile = x => x<=0?0:Math.round(normCDF((Math.log(x)-4.67325)/0.2436121)*100);
 
+  const riskColor = v => v < 90 ? "green" : v <= 120 ? "#FF6F00" : "red";
+  const inRange = (v,min,max)=>v>=min&&v<=max;
+
   let particlePieChart, riskPieChart;
 
-  const tgInput = document.getElementById('tg');
-  const tgUnit = document.getElementById('tg_unit');
-  const lpaInput = document.getElementById('lpa');
-  const lpaUnit = document.getElementById('lpa_unit');
-  const apoBInput = document.getElementById('apoB');
+  const tgInput=document.getElementById('tg');
+  const tgUnit=document.getElementById('tg_unit');
+  const lpaInput=document.getElementById('lpa');
+  const lpaUnit=document.getElementById('lpa_unit');
+  const apoBInput=document.getElementById('apoB');
+  const rangeWarning=document.getElementById('rangeWarning');
 
-  const result = document.getElementById('result');
-  const percentileOutput = document.getElementById('percentileOutput');
-  const particlePieChartCtx = document.getElementById('particlePieChart').getContext('2d');
-  const riskPieChartCtx = document.getElementById('riskPieChart').getContext('2d');
+  const result=document.getElementById('result');
+  const percentileOutput=document.getElementById('percentileOutput');
+
+  window.resetInputs = function() {
+    tgInput.value = 0;
+    lpaInput.value = 0;
+    apoBInput.value = 0;
+    tgUnit.value = "mmol/L";
+    lpaUnit.value = "nmol/L";
+    updateResults();
+  };
 
   function updateResults() {
-    const tg = +tgInput.value || 0;
-    const lpa = +lpaInput.value || 0;
-    const apoB = +apoBInput.value || 0;
+    const tg=+tgInput.value||0;
+    const lpa=+lpaInput.value||0;
+    const apoB=+apoBInput.value||0;
 
-    const tg_mmol = tgUnit.value==="mg/dL"?tg/88.57:tg;
-    const lpa_nm = lpaUnit.value==="mg/dL"?lpa*2.2:lpa;
+    const tg_mmol=tgUnit.value==="mg/dL"?tg/88.57:tg;
+    const lpa_nm=lpaUnit.value==="mg/dL"?lpa*2.2:lpa;
 
-    const rwApoB = 11.65*tg_mmol + 0.215*lpa_nm + 0.736*apoB;
-    const ldl_eq_mmol = 0.149 + 0.0335*rwApoB;
-    const ldl_eq_mgdl = ldl_eq_mmol*38.67;
+    const tgOK=tg===0||inRange(tg_mmol,0.1,10);
+    const lpaOK=lpa===0||inRange(lpa_nm,1,500);
+    const apoOK=apoB===0||inRange(apoB,10,300);
 
-    const color = v => v<80?"green":v<=120?"orange":"red";
+    [tgInput,lpaInput,apoBInput].forEach(el=>el.classList.remove("input-warning"));
+    if(!tgOK) tgInput.classList.add("input-warning");
+    if(!lpaOK) lpaInput.classList.add("input-warning");
+    if(!apoOK) apoBInput.classList.add("input-warning");
 
-    result.innerHTML = `
+    rangeWarning.style.display=(!tgOK||!lpaOK||!apoOK)?"block":"none";
+
+    const rwApoB=11.65*tg_mmol+0.215*lpa_nm+0.736*apoB;
+    const ldl_eq_mmol=0.149+0.0335*rwApoB;
+    const ldl_eq_mgdl=ldl_eq_mmol*38.67;
+
+    result.innerHTML=`
       <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
       <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
-      <p style="color:${color(apoB)}">ApoB: ${apoB} mg/dL</p>
-      <p class="value-text" style="color:${color(rwApoB)}">RW-ApoB: ${Math.round(rwApoB)} mg/dL</p>
-      <p>Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</p>
+      <p style="color:${riskColor(apoB)}">Apolipoprotein B: ${apoB} mg/dL</p>
+      <p class="value-text" style="color:${riskColor(rwApoB)}">RW-ApoB: ${Math.round(rwApoB)} mg/dL</p>
+      ${(tg||lpa||apoB)?`<p>Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</p>`:""}
     `;
 
-    const apoPct = apoBPercentile(apoB);
-    const rwPct = RWapobPercentile(rwApoB);
-    const pctColor = p=>p<30?"green":p<=70?"#FF8C00":"red";
-
-    percentileOutput.innerHTML = `
-      <p style="color:${pctColor(apoPct)}">${apoPct}% of people have lower ApoB</p>
-      <p style="color:${pctColor(rwPct)}">${rwPct}% of people have lower RW-ApoB</p>
+    percentileOutput.innerHTML=`
+      <p style="color:${riskColor(apoB)}">${apoBPercentile(apoB)}% of people have lower ApoB</p>
+      <p style="color:${riskColor(rwApoB)}">${RWapobPercentile(rwApoB)}% of people have lower RW-ApoB</p>
     `;
 
-    const denom = 18.8*apoB||1;
-    const particleData = [
+    const denom=18.8*apoB||1;
+    const particleData=[
       Math.round(85*tg_mmol/denom*100),
       Math.round(lpa_nm/denom*100),
       Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/denom*100)
     ];
 
-    const riskDenom = 18.8*apoB + 5.5*lpa_nm + 297.5*tg_mmol||1;
-    const riskData = [
+    const riskDenom=18.8*apoB+5.5*lpa_nm+297.5*tg_mmol||1;
+    const riskData=[
       Math.round((4.5*85*tg_mmol)/riskDenom*100),
       Math.round((6.5*lpa_nm)/riskDenom*100),
       Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/riskDenom*100)
     ];
 
-    // Swapped colors: blue <-> grey
-    const colors = ["#FFC107","#9E9E9E","#64B5F6"];
+    const colors=["#FFC107","#9E9E9E","#64B5F6"];
+
     particlePieChart?.destroy();
     riskPieChart?.destroy();
 
-    particlePieChart = new Chart(particlePieChartCtx,{
+    particlePieChart=new Chart(document.getElementById('particlePieChart'),{
       type:'pie',
       data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:particleData,backgroundColor:colors}]},
-      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
     });
 
-    riskPieChart = new Chart(riskPieChartCtx,{
+    riskPieChart=new Chart(document.getElementById('riskPieChart'),{
       type:'pie',
       data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:riskData,backgroundColor:colors}]},
-      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
     });
   }
 
@@ -302,6 +357,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   updateResults();
+
+  // Live Visitor Count
+  async function updateVisitorCount() {
+    try {
+      const res = await fetch("https://michaela.goatcounter.com/api/count?format=json");
+      const data = await res.json();
+      document.getElementById("visitorCount").textContent =
+        `Visitors (unique): ${data.unique} | Pageviews: ${data.count}`;
+    } catch(err) {
+      console.log("Error fetching GoatCounter data:", err);
+    }
+  }
+
+  updateVisitorCount();
+  setInterval(updateVisitorCount, 30000); // refresh every 30s
+
 });
 </script>
 
