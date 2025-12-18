@@ -3,45 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <title>Risk-weighted ApoB Calculator</title>
+
+<!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- jsPDF & html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<script data-goatcounter="https://michaela.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
 <style>
-body{font-family:'Roboto',sans-serif;background-color:#f0f2f5;padding-top:20px}
-.card{border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);background-color:#d9edf7}
-.value-text{font-weight:bold;font-size:1.3rem}
-h2{font-size:2.3rem;font-weight:400}
-h4,h5{font-weight:700}
-.logo-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.logo-bar img{max-height:80px}
-.logo-bar img.right-logo{max-height:130px}
-.chart-title{text-align:center;font-weight:700;margin-bottom:10px;font-size:1.5rem}
-.disclaimer-box{background-color:#eeeeee;color:#555;font-size:0.9rem;text-align:center}
-.chart-container{position:relative;width:100%;max-height:300px}
-.input-warning{background-color:#fff9db !important}
-.warning-block{display:none;font-size:1.05rem;font-weight:600;color:#b08900;margin-top:5px}
-.warning-icon{font-size:1.6rem;margin-right:6px;vertical-align:middle}
-#percentileOutput p{font-size:1.25rem;font-weight:400}
-@media print{.no-print{display:none}}
+body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding-top: 20px; }
+.card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background-color: #d9edf7; }
+.value-text { font-weight: bold; font-size: 1.3rem; }
+h2 { font-size: 2.3rem; font-weight: 400; }
+h4,h5 { font-weight: 700; }
+.logo-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.logo-bar img { max-height: 80px; }
+.logo-bar img.right-logo { max-height: 130px; }
+.chart-title { text-align: center; font-weight: 700; margin-bottom: 10px; font-size: 1.5rem; }
+.disclaimer-box { background-color: #eeeeee; color: #555; font-size: 0.9rem; text-align: center; }
+.chart-container { position: relative; width: 100%; max-height: 300px; }
+.input-warning { background-color: #fff9db !important; }
+.warning-block { display: none; font-size: 1.05rem; font-weight: 600; color: #b08900; margin-top: 5px; }
+.warning-icon { font-size: 1.6rem; margin-right: 6px; vertical-align: middle; }
+#percentileOutput p { font-size: 1.25rem; font-weight: 400; }
+@media print { .no-print { display: none; } }
 </style>
 </head>
+
 <body>
 <div class="container">
+
+  <!-- Logos -->
   <div class="logo-bar">
     <img src="logo2.png" alt="Logo 2">
     <img src="logo1.png" alt="Logo 1" class="right-logo">
   </div>
+
   <h2 class="text-center mb-4">Risk-weighted ApoB Calculator</h2>
+
+  <!-- Input Box -->
   <div class="card p-3 mb-3">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-start">
         <h4>Enter Lipid Measurements</h4>
         <button class="btn btn-sm btn-outline-secondary no-print" onclick="resetInputs()">Reset</button>
       </div>
+
       <div id="rangeWarning" class="warning-block">
         <span class="warning-icon">⚠️</span>Are you sure? Check values and units.
       </div>
+
       <div class="row g-3 mt-1">
         <div class="col-12 col-md-4">
           <label class="form-label">Triglycerides</label>
@@ -72,6 +90,8 @@ h4,h5{font-weight:700}
       </div>
     </div>
   </div>
+
+  <!-- Results & Percentiles -->
   <div class="row d-flex flex-column flex-md-row mb-3">
     <div class="col-12 col-md-6 mb-3 mb-md-0 d-flex">
       <div class="card p-3 flex-fill h-100">
@@ -87,6 +107,8 @@ h4,h5{font-weight:700}
       </div>
     </div>
   </div>
+
+  <!-- Charts -->
   <div class="row mb-3 equal-height">
     <div class="col-12 col-md-6 mb-3 mb-md-0 d-flex">
       <div class="card p-3 flex-fill">
@@ -109,9 +131,13 @@ h4,h5{font-weight:700}
       </div>
     </div>
   </div>
+
+  <!-- Export PDF -->
   <div class="text-center mb-3 no-print">
-    <button class="btn btn-secondary" onclick="window.print()">Export to PDF</button>
+    <button class="btn btn-secondary" onclick="exportPDF()">Export to PDF</button>
   </div>
+
+  <!-- Disclaimer -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card p-3 disclaimer-box">
@@ -122,22 +148,148 @@ h4,h5{font-weight:700}
       </div>
     </div>
   </div>
+
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
-if(!Math.erf){Math.erf=function(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const sign=x<0?-1:1;x=Math.abs(x);const t=1/(1+p*x);return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}}
-const normCDF=z=>(1+Math.erf(z/Math.sqrt(2)))/2;
-const apoBPercentile=x=>x<=0?0:Math.round(normCDF((Math.log(x)-4.64175)/0.219697)*100);
-const RWapobPercentile=x=>x<=0?0:Math.round(normCDF((Math.log(x)-4.67325)/0.2436121)*100);
-const riskColor=v=>v<90?"green":v<=120?"#FF6F00":"red";
-const inRange=(v,min,max)=>v>=min&&v<=max;
-let particlePieChart,riskPieChart;
-const tgInput=document.getElementById('tg'),tgUnit=document.getElementById('tg_unit'),lpaInput=document.getElementById('lpa'),lpaUnit=document.getElementById('lpa_unit'),apoBInput=document.getElementById('apoB'),rangeWarning=document.getElementById('rangeWarning');
-const result=document.getElementById('result'),percentileOutput=document.getElementById('percentileOutput');
-window.resetInputs=function(){tgInput.value=0;lpaInput.value=0;apoBInput.value=0;tgUnit.value="mmol/L";lpaUnit.value="nmol/L";updateResults()};
-function updateResults(){const tg=+tgInput.value||0,lpa=+lpaInput.value||0,apoB=+apoBInput.value||0,tg_mmol=tgUnit.value==="mg/dL"?tg/88.57:tg,lpa_nm=lpaUnit.value==="mg/dL"?lpa*2.2:lpa,tgOK=tg===0||inRange(tg_mmol,0.1,10),lpaOK=lpa===0||inRange(lpa_nm,1,500),apoOK=apoB===0||inRange(apoB,10,300);[tgInput,lpaInput,apoBInput].forEach(el=>el.classList.remove("input-warning"));if(!tgOK)tgInput.classList.add("input-warning");if(!lpaOK)lpaInput.classList.add("input-warning");if(!apoOK)apoBInput.classList.add("input-warning");rangeWarning.style.display=(!tgOK||!lpaOK||!apoOK)?"block":"none";const rwApoB=11.65*tg_mmol+0.215*lpa_nm+0.736*apoB,ldl_eq_mmol=0.149+0.0335*rwApoB,ldl_eq_mgdl=ldl_eq_mmol*38.67;result.innerHTML=`<p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p><p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p><p style="color:${riskColor(apoB)}">Apolipoprotein B: ${apoB} mg/dL</p><p class="value-text" style="color:${riskColor(rwApoB)}">RW-ApoB: ${Math.round(rwApoB)} mg/dL</p>${(tg||lpa||apoB)?`<p>Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</p>`:""}`;percentileOutput.innerHTML=`<p style="color:${riskColor(apoB)}">${apoBPercentile(apoB)}% of people have lower ApoB</p><p style="color:${riskColor(rwApoB)}">${RWapobPercentile(rwApoB)}% of people have lower RW-ApoB</p>`;const denom=18.8*apoB||1,particleData=[Math.round(85*tg_mmol/denom*100),Math.round(lpa_nm/denom*100),Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/denom*100)],riskDenom=18.8*apoB+5.5*lpa_nm+297.5*tg_mmol||1,riskData=[Math.round((4.5*85*tg_mmol)/riskDenom*100),Math.round((6.5*lpa_nm)/riskDenom*100),Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/riskDenom*100)],colors=["#FFC107","#9E9E9E","#64B5F6"];particlePieChart?.destroy();riskPieChart?.destroy();particlePieChart=new Chart(document.getElementById('particlePieChart'),{type:'pie',data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:particleData,backgroundColor:colors}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});riskPieChart=new Chart(document.getElementById('riskPieChart'),{type:'pie',data:{labels:["TRL","Lp(a)","LDL"],datasets:[{data:riskData,backgroundColor:colors}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}})}
-[tgInput,tgUnit,lpaInput,lpaUnit,apoBInput].forEach(el=>{el.addEventListener('input',updateResults);el.addEventListener('change',updateResults)});
-updateResults();
+
+  if(!Math.erf){Math.erf=function(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911; const sign=x<0?-1:1; x=Math.abs(x); const t=1/(1+p*x); return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}}
+
+  const normCDF=z=>(1+Math.erf(z/Math.sqrt(2)))/2;
+  const apoBPercentile=x=>x<=0?0:Math.round(normCDF((Math.log(x)-4.64175)/0.219697)*100);
+  const RWapobPercentile=x=>x<=0?0:Math.round(normCDF((Math.log(x)-4.67325)/0.2436121)*100);
+
+  const riskColor=v=>v<90?"green":v<=120?"#FF6F00":"red";
+  const inRange=(v,min,max)=>v>=min&&v<=max;
+
+  const tgInput=document.getElementById('tg');
+  const tgUnit=document.getElementById('tg_unit');
+  const lpaInput=document.getElementById('lpa');
+  const lpaUnit=document.getElementById('lpa_unit');
+  const apoBInput=document.getElementById('apoB');
+  const rangeWarning=document.getElementById('rangeWarning');
+  const result=document.getElementById('result');
+  const percentileOutput=document.getElementById('percentileOutput');
+
+  let particlePieChart,riskPieChart;
+
+  window.resetInputs=function(){
+    tgInput.value=0; lpaInput.value=0; apoBInput.value=0;
+    tgUnit.value="mmol/L"; lpaUnit.value="nmol/L";
+    updateResults();
+  }
+
+  function updateResults(){
+    const tg=+tgInput.value||0;
+    const lpa=+lpaInput.value||0;
+    const apoB=+apoBInput.value||0;
+
+    const tg_mmol = tgUnit.value==="mg/dL"?tg/88.57:tg;
+    const lpa_nm = lpaUnit.value==="mg/dL"?lpa*2.2:lpa;
+
+    const tgOK = tg===0 || inRange(tg_mmol,0.1,10);
+    const lpaOK = lpa===0 || inRange(lpa_nm,1,500);
+    const apoOK = apoB===0 || inRange(apoB,10,300);
+
+    [tgInput,lpaInput,apoBInput].forEach(el=>el.classList.remove("input-warning"));
+    if(!tgOK) tgInput.classList.add("input-warning");
+    if(!lpaOK) lpaInput.classList.add("input-warning");
+    if(!apoOK) apoBInput.classList.add("input-warning");
+
+    rangeWarning.style.display = (!tgOK||!lpaOK||!apoOK) ? "block":"none";
+
+    const rwApoB = 11.65*tg_mmol + 0.215*lpa_nm + 0.736*apoB;
+    const ldl_eq_mmol = 0.149 + 0.0335*rwApoB;
+    const ldl_eq_mgdl = ldl_eq_mmol*38.67;
+
+    result.innerHTML = `
+      <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
+      <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
+      <p style="color:${riskColor(apoB)}">Apolipoprotein B: ${apoB} mg/dL</p>
+      <p class="value-text" style="color:${riskColor(rwApoB)}; font-size:1.5rem;">RW-ApoB: ${Math.round(rwApoB)} mg/dL</p>
+      ${(tg||lpa||apoB) ? `<p>Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</p>` : ""}
+    `;
+
+    percentileOutput.innerHTML = `
+      <p style="color:${riskColor(apoB)}; font-size:1.35rem;">${apoBPercentile(apoB)}% of people have lower ApoB</p>
+      <p style="color:${riskColor(rwApoB)}; font-size:1.35rem;">${RWapobPercentile(rwApoB)}% of people have lower RW-ApoB</p>
+    `;
+
+    const denom = 18.8*apoB||1;
+    const particleData = [
+      Math.round(85*tg_mmol/denom*100),
+      Math.round(lpa_nm/denom*100),
+      Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/denom*100)
+    ];
+    const riskDenom = 18.8*apoB + 5.5*lpa_nm + 297.5*tg_mmol || 1;
+    const riskData = [
+      Math.round((4.5*85*tg_mmol)/riskDenom*100),
+      Math.round((6.5*lpa_nm)/riskDenom*100),
+      Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/riskDenom*100)
+    ];
+
+    const colors = ["#FFC107","#9E9E9E","#64B5F6"];
+
+    if(particlePieChart) particlePieChart.destroy();
+    if(riskPieChart) riskPieChart.destroy();
+
+    particlePieChart = new Chart(document.getElementById('particlePieChart'),{
+      type:'pie',
+      data:{labels:["TRL","Lp(a)","LDL"], datasets:[{data:particleData, backgroundColor:colors}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
+    });
+
+    riskPieChart = new Chart(document.getElementById('riskPieChart'),{
+      type:'pie',
+      data:{labels:["TRL","Lp(a)","LDL"], datasets:[{data:riskData, backgroundColor:colors}]},
+      options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}
+    });
+  }
+
+  [tgInput,tgUnit,lpaInput,lpaUnit,apoBInput].forEach(el=>{
+    el.addEventListener('input', updateResults);
+    el.addEventListener('change', updateResults);
+  });
+
+  updateResults();
+
+  // PDF Export
+window.exportPDF = async function(){
+    const { jsPDF } = window.jspdf;
+    const container = document.querySelector('.container');
+    const logos = document.querySelectorAll('.logo-bar img');
+
+    // Hide logos temporarily
+    logos.forEach(img => img.style.visibility='hidden');
+
+    // Ensure charts are fully rendered
+    if(particlePieChart) particlePieChart.update();
+    if(riskPieChart) riskPieChart.update();
+    await new Promise(r => setTimeout(r, 2000)); // wait 2000ms to render fully
+
+    const canvas = await html2canvas(container, { scale: 2, useCORS:true, allowTaint:true });
+    const imgData = canvas.toDataURL('image/png');
+
+    // Restore logos
+    logos.forEach(img => img.style.visibility='visible');
+
+    const pdf = new jsPDF('p','pt','a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const scale = Math.min(pdfWidth / imgProps.width, pdfHeight / imgProps.height);
+
+    const imgWidth = imgProps.width * scale;
+    const imgHeight = imgProps.height * scale;
+    const marginX = (pdfWidth - imgWidth)/2;
+    const marginY = (pdfHeight - imgHeight)/2;
+
+    pdf.addImage(imgData, 'PNG', marginX, marginY, imgWidth, imgHeight);
+    pdf.save('RW-ApoB-Results.pdf');
+}
+
 });
 </script>
 </body>
