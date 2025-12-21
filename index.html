@@ -1,3 +1,12 @@
+<!--
+© 2025 Michaela Rehman
+Risk-weighted ApoB Calculator
+
+All rights reserved.
+Unauthorized copying, modification, or distribution of this code
+is prohibited without explicit permission from the author.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,7 +66,7 @@ h4,h5 {
   max-height: 80px; 
 }
 .logo-bar img.right-logo { 
-  max-height: 75px; }
+  max-height: 80px; }
 
 /* Pie chart titles - dark grey & thinner */
 div.card .chart-title {
@@ -228,6 +237,11 @@ div.card .card-body h4 {
     </div>
   </div>
 
+  <!-- Copyright Footer -->
+  <div class="text-center mt-3 mb-4 no-print" style="font-size:0.85rem; color:#666;">
+    © 2025 Michaela Rehman. All rights reserved.
+  </div>
+
 </div>
 
 <script>
@@ -339,18 +353,15 @@ window.exportPDF = async function(){
     const container = document.querySelector('.container');
     const logos = document.querySelectorAll('.logo-bar img');
 
-    // Hide logos temporarily
     logos.forEach(img => img.style.visibility='hidden');
 
-    // Ensure charts are fully rendered
     if(particlePieChart) particlePieChart.update();
     if(riskPieChart) riskPieChart.update();
-    await new Promise(r => setTimeout(r, 2000)); // wait 2000ms to render fully
+    await new Promise(r => setTimeout(r, 2000));
 
     const canvas = await html2canvas(container, { scale: 2, useCORS:true, allowTaint:true });
     const imgData = canvas.toDataURL('image/png');
 
-    // Restore logos
     logos.forEach(img => img.style.visibility='visible');
 
     const pdf = new jsPDF('p','pt','a4');
@@ -371,6 +382,7 @@ window.exportPDF = async function(){
 
 });
 </script>
+
 <script
   data-goatcounter="https://michaela.goatcounter.com/count"
   async
