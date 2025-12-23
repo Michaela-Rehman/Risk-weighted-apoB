@@ -100,17 +100,17 @@ h4,h5 { font-weight: 600; }
 
 /* Mobile fixes */
 @media (max-width: 576px) {
-  .particle-title span { 
-    display: block !important; 
+  .particle-title span {
+    display: block; /* each span goes to its own line */
+    text-align: center; /* optional, centers text on mobile */
   }
-  .equal-height > div { 
-    margin-bottom: 12px !important; 
+  .equal-height > div {
+    margin-bottom: 12px !important; /* keep spacing between rows */
   }
-  .chart-title { 
-    font-size: 1.3rem; 
+  .chart-title {
+    font-size: 1.3rem; /* smaller titles on mobile */
   }
 }
-
 @media print { .no-print { display: none; } }
 </style>
 </head>
@@ -191,9 +191,8 @@ h4,h5 { font-weight: 600; }
       <div class="card p-3 flex-fill">
         <div class="card-body">
           <div class="chart-title particle-title">
-            <span>Particle</span>
-            <span>proportions (%)</span>
-          </div>
+  <span>Particle</span> <span>proportions (%)</span>
+</div>
           <div class="chart-container">
             <canvas id="particlePieChart"></canvas>
           </div>
