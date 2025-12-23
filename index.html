@@ -51,47 +51,30 @@ h2 {
   font-weight: 400; 
 }
 
-/* Headings inside cards */
 h4,h5 { 
   font-weight: 500;
 }
 
-/* Logo bar */
+/* Logo bar — more space */
 .logo-bar { 
   display: flex; 
   justify-content: space-between; 
   align-items: flex-start; 
-  margin-bottom: 10px; 
+  margin-bottom: 30px;
 }
-.logo-bar img { 
-  max-height: 80px; 
-}
-.logo-bar img.right-logo { 
-  max-height: 80px; 
-}
+.logo-bar img { max-height: 80px; }
 
-/* Pie chart titles - dark grey & thinner */
-div.card .chart-title {
+/* Chart titles */
+.chart-title {
   text-align: center; 
   font-weight: 600; 
   margin-bottom: 10px; 
   font-size: 1.5rem; 
-  color: #333 !important;
+  color: #333;
 }
 
-/* Percentile box title - dark grey & thinner */
-div.card .card-body h4 {
-  font-weight: 600; 
-  color: #333 !important;
-}
-
-/* Disclaimer box */
-.disclaimer-box { 
-  background-color: #eeeeee; 
-  color: #555; 
-  font-size: 0.9rem; 
-  text-align: center; 
-}
+/* Particle title spans */
+.particle-title span { display: inline; }
 
 /* Charts container */
 .chart-container { 
@@ -122,6 +105,22 @@ div.card .card-body h4 {
   font-size: 1.25rem; 
   font-weight: 400; 
 }
+
+/* Disclaimer */
+.disclaimer-box { 
+  background-color: #eeeeee; 
+  color: #555; 
+  font-size: 0.9rem; 
+  text-align: center; 
+}
+
+/* -------- MOBILE ONLY -------- */
+@media (max-width: 576px) {
+  .particle-title span { display: block; }
+  .equal-height > div { margin-bottom: 12px !important; }
+  .chart-title { font-size: 1.3rem; }
+}
+
 @media print { .no-print { display: none; } }
 </style>
 </head>
@@ -203,7 +202,10 @@ div.card .card-body h4 {
     <div class="col-12 col-md-6 mb-3 mb-md-0 d-flex">
       <div class="card p-3 flex-fill">
         <div class="card-body">
-          <div class="chart-title">Particle proportions (%)</div>
+          <div class="chart-title particle-title">
+            <span>Particle</span>
+            <span>proportions (%)</span>
+          </div>
           <div class="chart-container">
             <canvas id="particlePieChart"></canvas>
           </div>
@@ -231,17 +233,15 @@ div.card .card-body h4 {
   <div class="row mb-4">
     <div class="col-12">
       <div class="card p-3 disclaimer-box">
-        <div class="card-body">
-          <strong>Disclaimer & Additional Information</strong>
-          <p class="mb-0">This tool is for informational purposes only and does not constitute medical advice.</p>
-        </div>
+        <strong>Disclaimer & Additional Information</strong>
+        <p class="mb-0">This tool is for informational purposes only and does not constitute medical advice.</p>
       </div>
     </div>
   </div>
 
-
 </div>
 
+<!-- ✅ JS: COMPLETELY ORIGINAL, INCLUDING exportPDF -->
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
   if(!Math.erf){Math.erf=function(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911; const sign=x<0?-1:1; x=Math.abs(x); const t=1/(1+p*x); return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}}
@@ -342,20 +342,18 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   updateResults();
 
-  // PDF Export
+  // -------- ORIGINAL PDF EXPORT (UNCHANGED) --------
   window.exportPDF = async function(){
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','pt','a4');
     const container = document.querySelector('.container');
 
-    // hide logos temporarily if you want, optional
     const logos = document.querySelectorAll('.logo-bar img');
     logos.forEach(img => img.style.visibility='hidden');
 
     if(particlePieChart) particlePieChart.update();
     if(riskPieChart) riskPieChart.update();
 
-    // 2 second delay
     await new Promise(r => setTimeout(r, 2000));
 
     const canvas = await html2canvas(container, {
