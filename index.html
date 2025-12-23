@@ -5,6 +5,7 @@ No permission is granted to copy, modify, merge, publish, distribute,
 sublicense, sell, or reuse the source code or any derivative works,
 in whole or in part, without explicit written permission from the
 copyright holder.
+
 -->
 
 <!DOCTYPE html>
@@ -102,19 +103,6 @@ h4,h5 { font-weight: 600; }
   text-align: center;
 }
 
-/* Mobile fixes */
-@media (max-width: 576px) {
-  .particle-title span {
-    display: block; /* each span goes to its own line */
-    text-align: center; /* optional, centers text on mobile */
-  }
-  .equal-height > div {
-    margin-bottom: 12px !important; /* keep spacing between rows */
-  }
-  .chart-title {
-    font-size: 1.3rem; /* smaller titles on mobile */
-  }
-}
 @media print { .no-print { display: none; } }
 </style>
 </head>
@@ -333,10 +321,10 @@ tooltip:{
       boxPadding:8
     }
 },
-    hoverOffset: 5,          // slices pop out further
+    hoverOffset: 5,          
     animation: {
       animateRotate: true,
-      animateScale: true      // smooth animation
+      animateScale: true     
     }
   }
 });
@@ -359,10 +347,10 @@ tooltip:{
       boxPadding:8
     }
 },
-    hoverOffset: 5,          // slices pop out further
+    hoverOffset: 5,          
     animation: {
       animateRotate: true,
-      animateScale: true      // smooth animation
+      animateScale: true     
     }
   }
 });
@@ -376,7 +364,7 @@ tooltip:{
 
   updateResults();
 
-  // PDF Export (unchanged)
+ 
   window.exportPDF = async function(){
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','pt','a4');
@@ -386,7 +374,7 @@ tooltip:{
 
     if(particlePieChart) particlePieChart.update();
     if(riskPieChart) riskPieChart.update();
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1500));
 
     const canvas = await html2canvas(container, { scale: 2, allowTaint: true, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
