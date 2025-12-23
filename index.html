@@ -1,6 +1,10 @@
 <!--
 © 2025 Michaela Rehman
 Risk-weighted ApoB Calculator
+No permission is granted to copy, modify, merge, publish, distribute,
+sublicense, sell, or reuse the source code or any derivative works,
+in whole or in part, without explicit written permission from the
+copyright holder.
 -->
 
 <!DOCTYPE html>
@@ -320,8 +324,16 @@ document.addEventListener('DOMContentLoaded',()=>{
   options:{
     responsive:true,
     maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom'}},
-    hoverOffset: 15,          // slices pop out further
+cutout: '40%',  
+    plugins:{legend:{position:'bottom'},
+tooltip:{
+      titleFont:{ size:16 },
+      bodyFont:{ size:15 },
+      padding:12,
+      boxPadding:8
+    }
+},
+    hoverOffset: 5,          // slices pop out further
     animation: {
       animateRotate: true,
       animateScale: true      // smooth animation
@@ -338,14 +350,23 @@ riskPieChart = new Chart(document.getElementById('riskPieChart'),{
   options:{
     responsive:true,
     maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom'}},
-    hoverOffset: 15,
+cutout: '40%',  
+    plugins:{legend:{position:'bottom'},
+tooltip:{
+      titleFont:{ size:16 },
+      bodyFont:{ size:15 },
+      padding:12,
+      boxPadding:8
+    }
+},
+    hoverOffset: 5,          // slices pop out further
     animation: {
       animateRotate: true,
-      animateScale: true
+      animateScale: true      // smooth animation
     }
   }
 });
+
   }
 
   [tgInput,tgUnit,lpaInput,lpaUnit,apoBInput].forEach(el=>{
