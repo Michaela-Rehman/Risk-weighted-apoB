@@ -134,7 +134,7 @@ h4,h5 { font-weight: 600; }
   margin-top: 1rem;
   padding: 0.8rem 1rem;
   border-radius: 12px;
-  border: 2px solid #ccc; /* default border, overridden by JS color */
+  border: 2px solid #ccc; 
   min-width: 180px;
   font-size: 1.8rem;
   font-weight: 700;
@@ -227,7 +227,7 @@ h4,h5 { font-weight: 600; }
             <!-- JS inserts ApoB % and RW-ApoB % here -->
           </div>
           <div class="note">
-            Based on 285,060 individuals aged 40–69, not on lipid-lowering therapy, from the UK Biobank
+            Based on 285,060 individuals from the UK Biobank aged 40–69, not on lipid-lowering therapy.
           </div>
         </div>
       </div>
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     result.innerHTML = `
       <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
       <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
-      <p style="color:${riskColor(apoB)}; font-weight: 700; font-size: 1.5rem;">Apolipoprotein B: ${apoB} mg/dL</p>
+      <p style="color:${riskColor(apoB)}; font-weight: 700; font-size: 1.5rem;">ApoB: ${apoB} mg/dL</p>
       <div class="rw-apob-box" style="color:${riskColor(rwApoB)}; border-color:${riskColor(rwApoB)};">
         RW-ApoB: ${Math.round(rwApoB)} mg/dL
       </div>
