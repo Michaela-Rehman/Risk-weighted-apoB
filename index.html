@@ -28,7 +28,7 @@ body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding-top
 .value-text { font-weight: bold; font-size: 1.3rem; }
 
 h1 {
-  font-size: 3rem;      
+  font-size: 2.5rem;      
   font-weight: 100;    
   color: #001F4D;       
   text-align: center;
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     const tgOK = tg===0 || inRange(tg_mmol,0.1,10);
     const lpaOK = lpa===0 || inRange(lpa_nm,1,500);
-    const apoOK = apoB===0 || inRange(apoB,10,300);
+    const apoOK = apoB===0 || inRange(apoB,20,300);
 
     [tgInput,lpaInput,apoBInput].forEach(el=>el.classList.remove("input-warning"));
     if(!tgOK) tgInput.classList.add("input-warning");
@@ -334,11 +334,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(navigator.share){
       navigator.share({
         title: 'Risk-weighted ApoB Calculator',
-        text: 'Check out my RW-ApoB results!',
+        text: 'Check your RW-ApoB results!',
         url: window.location.href
       }).catch(console.error);
     } else {
-      alert('Sharing not supported. Copy the URL instead: ' + window.location.href);
+      alert('Sorry, sharing not supported on this device. Copy this instead: ' + window.location.href);
     }
   }
 
