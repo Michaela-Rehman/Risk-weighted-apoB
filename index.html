@@ -12,8 +12,8 @@ copyright holder.
 <head>
 <meta charset="UTF-8">
 <title>Risk-weighted ApoB Calculator</title>
-<meta name="description" content="Calculate your lipid-associated cardiovascular risk with Risk-weighted ApoB (RW-ApoB) and compare it to your Apolipoprotein B. Includes LDL-C equivalent and particle proportions.">
-<meta name="keywords" content="ApoB, Risk-weighted ApoB, RW-ApoB, LDL-C, lipid calculator, cholesterol, triglycerides, Lipoprotein(a), cardiovascular risk">
+<meta name="description" content="Calculate your lipid-associated coronary heart disease risk with Risk-weighted ApoB (RW-ApoB) and compare it to your Apolipoprotein B. Includes LDL-C equivalent and particle proportions.">
+<meta name="keywords" content="ApoB, Risk-weighted ApoB, RW-ApoB, Risk-Weighted Apolipoprotein B, LDL-C, lipid calculator, cholesterol, triglycerides, Lipoprotein(a), cardiovascular risk">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.rwapob.com/" />
 <meta name="google-site-verification" content="dwAiEsoQGASQJzonJlqTyP_MZ0Bfi0iJD5tBMaYwabk" />
@@ -80,7 +80,59 @@ h2, .chart-title {
 }
 
 .ldl-equivalent { margin-top: 1.2rem; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 </style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MedicalWebPage",
+  "name": "Risk-weighted ApoB Calculator",
+  "description": "Interactive calculator for Risk-weighted Apolipoprotein B (RW-ApoB) based on published cardiovascular research.",
+  "url": "https://www.rwapob.com/",
+  "author": {
+    "@type": "Person",
+    "name": "Michaela Rehman",
+    "jobTitle": "Cardiologist"
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "Michaela Rehman"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Michaela Rehman"
+  },
+  "isBasedOn": {
+    "@type": "ScholarlyArticle",
+    "name": "Risk-weighted apoB: a novel summary metric outperforming traditional lipid biomarkers in predicting coronary heart disease",
+    "isPartOf": {
+      "@type": "Periodical",
+      "name": "European Heart Journal"
+    },
+    "datePublished": "2026"
+  },
+  "hasHealthAspect": "CardiovascularHealth",
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Healthcare professionals and general public"
+  }
+}
+</script>
+
+
 </head>
 
 <body>
@@ -159,7 +211,7 @@ h2, .chart-title {
         <div id="percentileOutput"
              class="d-flex flex-column justify-content-between text-center" style="flex:1;">
           <div class="percentile-main d-flex flex-column justify-content-center flex-fill">
-            <!-- JS inserts ApoB % and RW-ApoB % here -->
+            
           </div>
           <div class="note">
             Based on 285,060 individuals from the UK Biobank aged 40–69, not on lipid-lowering therapy.
@@ -179,23 +231,50 @@ h2, .chart-title {
 
   </div>
 
-  <!-- Export PDF & Share -->
+
   <div class="text-center mb-3 no-print">
     <button class="btn btn-secondary" onclick="exportPDF()">Export to PDF</button>
     <button class="btn btn-primary" onclick="shareResults()">Share</button>
   </div>
 
-  <!-- Disclaimer -->
-  <div class="row mb-4">
+
+
+
+ <div class="row mb-4">
     <div class="col-12">
-      <div class="card p-3 disclaimer-box">
+      <aside class="card disclaimer-box"
+             role="note"
+             aria-labelledby="medical-disclaimer-title">
+
         <div class="card-body">
-          <strong>Disclaimer & Additional Information</strong>
-          <p class="mb-0">This tool accompanies the academic paper: ____ This is for informational purposes only and does not constitute medical advice.</p>
-        </div>
+
+<h2 id="medical-disclaimer-title" class="visually-hidden">
+            Medical Disclaimer
+          </h2>
+
+
+        <p class="disclaimer-footnote mb-0">
+          This tool is for informational purposes only and does not constitute medical advice.
+          It accompanies the academic paper:
+          <br><br>
+
+          <strong>
+            Rehman &amp; Björnson et&nbsp;al. Risk-weighted apoB: a novel summary metric outperforming traditional lipid biomarkers in predicting coronary heart disease
+          </strong>
+          <br>
+          <em>European Heart Journal</em> (2026)
+          <a href="https://doi.org/10.1093/eurheartj/ehaf1124" target="_blank" rel="noopener noreferrer">
+            https://doi.org/10.1093/eurheartj/ehaf1124
+          </a>
+          <br><br>
+
+          Calculator code and software implementation: Michaela Rehman
+        </p>
       </div>
-    </div>
+    </aside>
   </div>
+</div>
+
 
 </div>
 
