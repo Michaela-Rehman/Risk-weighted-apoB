@@ -1,10 +1,7 @@
 <!--
 © 2025 Michaela Rehman
 Risk-weighted ApoB Calculator
-No permission is granted to copy, modify, merge, publish, distribute,
-sublicense, sell, or reuse the source code or any derivative works,
-in whole or in part, without explicit written permission from the
-copyright holder.
+No permission is granted to copy, modify, merge, publish, distribute, sublicense, sell, or reuse the source code or any derivative works, in whole or in part, without explicit written permission from the copyright holder.
 -->
 
 <!DOCTYPE html>
@@ -108,10 +105,6 @@ h2, .chart-title {
     "jobTitle": "Cardiologist"
   },
   "creator": {
-    "@type": "Person",
-    "name": "Michaela Rehman"
-  },
-  "publisher": {
     "@type": "Person",
     "name": "Michaela Rehman"
   },
@@ -231,13 +224,10 @@ h2, .chart-title {
 
   </div>
 
-
   <div class="text-center mb-3 no-print">
     <button class="btn btn-secondary" onclick="exportPDF()">Export to PDF</button>
     <button class="btn btn-primary" onclick="shareResults()">Share</button>
   </div>
-
-
 
 
  <div class="row mb-4">
@@ -303,79 +293,89 @@ document.addEventListener('DOMContentLoaded',()=>{
     tgUnit.value="mmol/L"; lpaUnit.value="nmol/L";
     updateResults();
   }
+function updateResults() {
+  const tg = +tgInput.value || 0;
+  const lpa = +lpaInput.value || 0;
+  const apoB = +apoBInput.value || 0;
 
-  function updateResults(){
-    const tg=+tgInput.value||0;
-    const lpa=+lpaInput.value||0;
-    const apoB=+apoBInput.value||0;
+  const tg_mmol = tgUnit.value === "mg/dL" ? tg / 88.57 : tg;
+  const lpa_nm = lpaUnit.value === "mg/dL" ? lpa * 2.2 : lpa;
 
-    const tg_mmol = tgUnit.value==="mg/dL"?tg/88.57:tg;
-    const lpa_nm = lpaUnit.value==="mg/dL"?lpa*2.2:lpa;
+  const tgOK = tg === 0 || inRange(tg_mmol, 0.1, 10);
+  const lpaOK = lpa === 0 || inRange(lpa_nm, 1, 500);
+  const apoOK = apoB === 0 || inRange(apoB, 20, 300);
 
-    const tgOK = tg===0 || inRange(tg_mmol,0.1,10);
-    const lpaOK = lpa===0 || inRange(lpa_nm,1,500);
-    const apoOK = apoB===0 || inRange(apoB,20,300);
+  [tgInput, lpaInput, apoBInput].forEach(el => el.classList.remove("input-warning"));
 
-    [tgInput,lpaInput,apoBInput].forEach(el=>el.classList.remove("input-warning"));
-    if(!tgOK) tgInput.classList.add("input-warning");
-    if(!lpaOK) lpaInput.classList.add("input-warning");
-    if(!apoOK) apoBInput.classList.add("input-warning");
+  let warningNeeded = false;
 
-    rangeWarning.style.display = (!tgOK||!lpaOK||!apoOK) ? "block":"none";
+  if (!tgOK) { tgInput.classList.add("input-warning"); warningNeeded = true; }
+  if (!lpaOK) { lpaInput.classList.add("input-warning"); warningNeeded = true; }
+  if (!apoOK) { apoBInput.classList.add("input-warning"); warningNeeded = true; }
 
-    const rwApoB = 11.65*tg_mmol + 0.215*lpa_nm + 0.736*apoB;
-    const ldl_eq_mmol = 0.149 + 0.0335*rwApoB;
-    const ldl_eq_mgdl = ldl_eq_mmol*38.67;
+  if (apoB > 0 && tg_mmol > 0 && lpa_nm > 0 && 18.8 * apoB < lpa_nm + 85 * tg_mmol) {
+    [tgInput, lpaInput, apoBInput].forEach(el => el.classList.add("input-warning"));
+    warningNeeded = true;
+}
 
-    result.innerHTML = `
-      <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
-      <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
-      <p style="color:${riskColor(apoB)}; font-weight: 700; font-size: 1.5rem;">ApoB: ${apoB} mg/dL</p>
-      <div class="rw-apob-box" style="color:${riskColor(rwApoB)}; border-color:${riskColor(rwApoB)};">
-        RW-ApoB: ${Math.round(rwApoB)} mg/dL
-      </div>
-      ${(tg||lpa||apoB) ? `<div class="ldl-equivalent">Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</div>` : ""}
-    `;
-    
-    percentileOutput.querySelector('.percentile-main').innerHTML = `
-      <p style="color:${riskColor(apoB)}; font-size:1.35rem; font-weight:400;">
-  ${apoBPercentile(apoB)}% of people have lower ApoB
-</p>
-<p style="color:${riskColor(rwApoB)}; font-size:1.35rem; font-weight:400;">
-  ${RWapobPercentile(rwApoB)}% of people have lower RW-ApoB
-</p>
-    `;
+  rangeWarning.innerHTML = "⚠️ Are you sure? Check values and units.";
+  rangeWarning.style.display = warningNeeded ? "block" : "none";
+  // ---------------------
 
-    const denom = 18.8*apoB||1;
-    const particleData = [
-      Math.round(85*tg_mmol/denom*100),
-      Math.round(lpa_nm/denom*100),
-      Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/denom*100)
-    ];
-    const riskDenom = 18.8*apoB + 5.5*lpa_nm + 297.5*tg_mmol || 1;
-    const riskData = [
-      Math.round((4.5*85*tg_mmol)/riskDenom*100),
-      Math.round((6.5*lpa_nm)/riskDenom*100),
-      Math.round((18.8*apoB-lpa_nm-85*tg_mmol)/riskDenom*100)
-    ];
+  const rwApoB = 11.65 * tg_mmol + 0.215 * lpa_nm + 0.736 * apoB;
+  const ldl_eq_mmol = 0.149 + 0.0335 * rwApoB;
+  const ldl_eq_mgdl = ldl_eq_mmol * 38.67;
 
-    const colors = ["#FFC107","#9E9E9E","#64B5F6"];
+  result.innerHTML = `
+    <p>Triglycerides: ${tg} (${tg_mmol.toFixed(2)} mmol/L)</p>
+    <p>Lipoprotein(a): ${lpa} (${lpa_nm.toFixed(1)} nmol/L)</p>
+    <p style="color:${riskColor(apoB)}; font-weight: 700; font-size: 1.5rem;">ApoB: ${apoB} mg/dL</p>
+    <div class="rw-apob-box" style="color:${riskColor(rwApoB)}; border-color:${riskColor(rwApoB)};">
+      RW-ApoB: ${Math.round(rwApoB)} mg/dL
+    </div>
+    ${(tg || lpa || apoB) ? `<div class="ldl-equivalent">Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</div>` : ""}
+  `;
 
-    if(particlePieChart) particlePieChart.destroy();
-    if(riskPieChart) riskPieChart.destroy();
+  percentileOutput.querySelector('.percentile-main').innerHTML = `
+    <p style="color:${riskColor(apoB)}; font-size:1.35rem; font-weight:400;">
+      ${apoBPercentile(apoB)}% of people have lower ApoB
+    </p>
+    <p style="color:${riskColor(rwApoB)}; font-size:1.35rem; font-weight:400;">
+      ${RWapobPercentile(rwApoB)}% of people have lower RW-ApoB
+    </p>
+  `;
 
-    particlePieChart = new Chart(document.getElementById('particlePieChart'),{
-      type:'pie',
-      data:{ labels:["TRL","Lp(a)","LDL"], datasets:[{data:particleData, backgroundColor:colors}] },
-      options:{ responsive:true, maintainAspectRatio:false, cutout:'40%', plugins:{legend:{position:'bottom'}} }
-    });
+  const denom = 18.8 * apoB || 1;
+  const particleData = [
+    Math.round(85 * tg_mmol / denom * 100),
+    Math.round(lpa_nm / denom * 100),
+    Math.round((18.8 * apoB - lpa_nm - 85 * tg_mmol) / denom * 100)
+  ];
+  const riskDenom = 18.8 * apoB + 5.5 * lpa_nm + 297.5 * tg_mmol || 1;
+  const riskData = [
+    Math.round((4.5 * 85 * tg_mmol) / riskDenom * 100),
+    Math.round((6.5 * lpa_nm) / riskDenom * 100),
+    Math.round((18.8 * apoB - lpa_nm - 85 * tg_mmol) / riskDenom * 100)
+  ];
 
-    riskPieChart = new Chart(document.getElementById('riskPieChart'),{
-      type:'pie',
-      data:{ labels:["TRL","Lp(a)","LDL"], datasets:[{data:riskData, backgroundColor:colors}] },
-      options:{ responsive:true, maintainAspectRatio:false, cutout:'40%', plugins:{legend:{position:'bottom'}} }
-    });
-  }
+  const colors = ["#FFC107", "#9E9E9E", "#64B5F6"];
+
+  if (particlePieChart) particlePieChart.destroy();
+  if (riskPieChart) riskPieChart.destroy();
+
+  particlePieChart = new Chart(document.getElementById('particlePieChart'), {
+    type: 'pie',
+    data: { labels: ["TRL", "Lp(a)", "LDL"], datasets: [{ data: particleData, backgroundColor: colors }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '40%', plugins: { legend: { position: 'bottom' } } }
+  });
+
+  riskPieChart = new Chart(document.getElementById('riskPieChart'), {
+    type: 'pie',
+    data: { labels: ["TRL", "Lp(a)", "LDL"], datasets: [{ data: riskData, backgroundColor: colors }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '40%', plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
 
   [tgInput,tgUnit,lpaInput,lpaUnit,apoBInput].forEach(el=>{
     el.addEventListener('input', updateResults);
