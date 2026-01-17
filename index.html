@@ -8,6 +8,7 @@ No permission is granted to copy, modify, merge, publish, distribute, sublicense
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Risk-weighted ApoB Calculator</title>
 
 
@@ -386,7 +387,7 @@ function updateResults() {
     Math.round((18.8 * apoB - lpa_nm - 85 * tg_mmol) / riskDenom * 100)
   ];
 
-  const colors = ["#FFC107", "#9E9E9E", "#64B5F6"];
+  const colors = ["#FFC107", "#1F3C88", "#64B5F6"]; 
 
   if (particlePieChart) particlePieChart.destroy();
   if (riskPieChart) riskPieChart.destroy();
