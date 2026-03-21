@@ -296,8 +296,8 @@ h2, .chart-title {
 document.addEventListener('DOMContentLoaded',()=>{
   if(!Math.erf){Math.erf=function(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911; const sign=x<0?-1:1; x=Math.abs(x); const t=1/(1+p*x); return sign*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x))}}
   const normCDF=z=>(1+Math.erf(z/Math.sqrt(2)))/2;
-  const apoBPercentile=x=>x<=0?0:Math.round(normCDF((Math.log(x)-4.64175)/0.219697)*100);
-  const RWapobPercentile=x=>x<=0?0:Math.round(normCDF((Math.log(x)-4.67325)/0.2436121)*100);
+  const apoBPercentile = x => x <= 0 ? 0 : normCDF((Math.log(x) - 4.64175) / 0.219697) * 100;
+const RWapobPercentile = x => x <= 0 ? 0 : normCDF((Math.log(x) - 4.67325) / 0.2436121) * 100;
   const riskColor=v=>v<90?"green":v<=120?"#FF6F00":"red";
   const inRange=(v,min,max)=>v>=min&&v<=max;
 
@@ -361,12 +361,12 @@ function updateResults() {
   `;
 
   percentileOutput.querySelector('.percentile-main').innerHTML = `
-    <p style="color:${riskColor(apoB)}; font-size:1.35rem; font-weight:400;">
-      ${apoBPercentile(apoB)}% of people have lower ApoB
-    </p>
-    <p style="color:${riskColor(rwApoB)}; font-size:1.35rem; font-weight:400;">
-      ${RWapobPercentile(rwApoB)}% of people have lower RW-ApoB
-    </p>
+  <p style="color:${riskColor(apoB)}; font-size:1.35rem; font-weight:400;">
+    ${Number(apoBPercentile(apoB)).toFixed(2)}% of people have lower ApoB
+  </p>
+  <p style="color:${riskColor(rwApoB)}; font-size:1.35rem; font-weight:400;">
+    ${Number(RWapobPercentile(rwApoB)).toFixed(2)}% of people have lower RW-ApoB
+  </p>
   `;
 
   const denom = 18.8 * apoB || 1;
