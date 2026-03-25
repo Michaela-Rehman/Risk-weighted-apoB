@@ -360,14 +360,20 @@ function updateResults() {
     ${(tg || lpa || apoB) ? `<div class="ldl-equivalent">Approximate LDL-C equivalent: ${ldl_eq_mmol.toPrecision(3)} mmol/L (${ldl_eq_mgdl.toPrecision(3)} mg/dL)</div>` : ""}
   `;
 
-  percentileOutput.querySelector('.percentile-main').innerHTML = `
+ percentileOutput.querySelector('.percentile-main').innerHTML = `
   <p style="color:${riskColor(apoB)}; font-size:1.35rem; font-weight:400;">
-    ${Number(apoBPercentile(apoB)).toFixed(2)}% of people have lower ApoB
+    ${formatPercentile(apoBPercentile(apoB))}% of people have lower ApoB
   </p>
   <p style="color:${riskColor(rwApoB)}; font-size:1.35rem; font-weight:400;">
-    ${Number(RWapobPercentile(rwApoB)).toFixed(2)}% of people have lower RW-ApoB
+    ${formatPercentile(RWapobPercentile(rwApoB))}% of people have lower RW-ApoB
   </p>
-  `;
+`;
+function formatPercentile(value) {
+  const num = Number(value);
+  // 2 decimals for extreme percentiles, none otherwise
+  return (num < 2 || num > 98) ? num.toFixed(2) : num.toFixed(0);
+}
+;
 
   const denom = 18.8 * apoB || 1;
   const particleData = [
