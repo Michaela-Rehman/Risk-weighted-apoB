@@ -77,6 +77,14 @@ h2, .chart-title {
 .warning-block { display: none; font-size: 1.05rem; font-weight: 600; color: #b08900; margin-top: 5px; }
 .warning-icon { font-size: 1.6rem; margin-right: 6px; }
 
+.tg-validation-warning {
+  display: none;
+  color: red;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
 #percentileOutput p { font-size: 1.0rem; font-weight: 600; color: #001F4D; }
 #percentileOutput .note { font-size: 0.8rem; color: #444; text-align: center; }
 
@@ -239,8 +247,12 @@ h2, .chart-title {
       </div>
 
       <div id="rangeWarning" class="warning-block">
-        <span class="warning-icon">⚠️</span>Are you sure? Check values and units.
-      </div>
+  <span class="warning-icon">⚠️</span>Are you sure? Check values and units.
+</div>
+
+<div id="tgValidationWarning" class="tg-validation-warning">
+  🔴RW-ApoB has not been adequately validated for TG above 5 mmol/L or 443 mg/dL and may overestimate risk.
+</div>
 
       <div class="row g-3 mt-1">
         <div class="col-12 col-md-4">
@@ -385,6 +397,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const lpaUnit=document.getElementById('lpa_unit');
   const apoBInput=document.getElementById('apoB');
   const rangeWarning=document.getElementById('rangeWarning');
+const tgValidationWarning = document.getElementById('tgValidationWarning');
   const result=document.getElementById('result');
   const percentileOutput=document.getElementById('percentileOutput');
 
@@ -445,6 +458,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const apoB = +apoBInput.value || 0;
 
     const tg_mmol = tgUnit.value === "mg/dL" ? tg / 88.57 : tg;
+tgValidationWarning.style.display = tg_mmol > 5 ? "block" : "none";
     const lpa_nm = lpaUnit.value === "mg/dL" ? lpa * 2.2 : lpa;
 
     const tgOK = tg === 0 || inRange(tg_mmol, 0.1, 10);
